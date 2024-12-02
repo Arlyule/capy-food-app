@@ -1,0 +1,58 @@
+<div style="margin-top: 60px">
+  <ion-text class="courses-list-title font-largeTitle">Ventas</ion-text>
+
+  <!-- Buscador -->
+  <ion-searchbar
+    [(ngModel)]="searchQuery"
+    (ionInput)="filterMesas()"
+  ></ion-searchbar>
+
+  <div class="section-list" style="max-height: 70vh; overflow-y: auto">
+    <!-- Lista de mesas -->
+    <div *ngFor="let mesa of filteredMesas">
+      <ion-card *ngFor="let cuenta of getCuentasPorMesa(mesa.id)">
+        <ion-card-header>
+          <ion-card-title
+            >{{ mesa.numero }} -
+            {{ getNegocioNombre(mesa.negocioId) }}</ion-card-title
+          >
+        </ion-card-header>
+
+        <ion-card-content>
+          <!-- Listar comandas asociadas a esta cuenta -->
+          <div *ngFor="let comanda of getComandasPorCuenta(cuenta.id)">
+            <ion-item>
+              <ion-label>
+                <h2>{{ getMenuNombre(comanda.productoId) }}</h2>
+                <p>Precio: ${{ getMenuPrecio(comanda.productoId) }}</p>
+                <p>Cantidad: {{ comanda.cantidad }}</p>
+                <p>
+                  Total: ${{
+                    getMenuPrecio(comanda.productoId) * comanda.cantidad
+                  }}
+                </p>
+              </ion-label>
+            </ion-item>
+          </div>
+
+          <!-- Total de la cuenta -->
+          <div>
+            <strong>Total Cuenta: ${{ calcularTotalCuenta(cuenta.id) }}</strong>
+          </div>
+
+          <!-- Botón para cerrar cuenta -->
+          <ion-button expand="full" (click)="cerrarCuenta(cuenta.id)"
+            >Cerrar Cuenta</ion-button
+          >
+        </ion-card-content>
+      </ion-card>
+    </div>
+    <!-- Infinite Scroll -->
+    <ion-infinite-scroll threshold="100px" (ionInfinite)="loadMore($event)">
+      <ion-infinite-scroll-content
+        loadingSpinner="bubbles"
+        loadingText="Cargando más mesas..."
+      ></ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+  </div>
+</div>

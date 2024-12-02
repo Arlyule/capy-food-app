@@ -1,0 +1,247 @@
+<div style="margin-top: 60px">
+  <ion-text class="courses-list-title font-largeTitle">Comanda</ion-text>
+
+  <!-- Barra de búsqueda -->
+  <ion-searchbar
+    [(ngModel)]="searchTerm"
+    (ionInput)="filterMesas()"
+    debounce="300"
+    show-clear-button="focus"
+    class="custom"
+    placeholder="Buscar Mesa ..."
+    showCancelButton="focus"
+  ></ion-searchbar>
+
+  <!-- Modal para editar pedido -->
+  <ion-modal [initialBreakpoint]="1" [breakpoints]="[0, 1]" #modalComanda>
+    <ng-template>
+      <div class="block">
+        <ion-header>
+          <ion-toolbar>
+            <ion-title>Editar Pedido</ion-title>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content class="ion-padding">
+          <form (ngSubmit)="updateComanda()">
+            <ion-item>
+              <ion-label position="stacked">Cantidad</ion-label>
+              <ion-input
+                [(ngModel)]="comandaSeleccionada.cantidad"
+                name="cantidad"
+                type="number"
+                required
+              ></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label>Estado</ion-label>
+              <ion-select
+                [(ngModel)]="comandaSeleccionada.estado"
+                name="estado"
+                placeholder="Seleccionar estado"
+                required
+              >
+                <ion-select-option value="Pendiente"
+                  >Pendiente</ion-select-option
+                >
+                <ion-select-option value="En Proceso"
+                  >En Proceso</ion-select-option
+                >
+                <ion-select-option value="Cancelada"
+                  >Cancelada</ion-select-option
+                >
+                <ion-select-option value="Finalizada"
+                  >Finalizada</ion-select-option
+                >
+              </ion-select>
+            </ion-item>
+
+            <ion-button
+              style="border-radius: 10px"
+              class="boton2"
+              expand="full"
+              type="submit"
+            >
+              Actualizar Pedido
+            </ion-button>
+          </form>
+        </ion-content>
+      </div>
+    </ng-template>
+  </ion-modal>
+
+  <ion-modal [initialBreakpoint]="1" [breakpoints]="[0, 1]" #modalAddComanda>
+    <ng-template>
+      <div class="block">
+        <ion-header>
+          <ion-toolbar>
+            <ion-title>Agregar Pedido</ion-title>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content class="ion-padding">
+          <!-- Selector de Categorías -->
+          <ion-item>
+            <ion-label>Categoria</ion-label>
+            <ion-select
+              placeholder="Seleccionar categoría"
+              (ionChange)="onCategoriaChange($event)"
+              [disabled]="isCategoriaDisabled"
+            >
+              <ion-select-option
+                *ngFor="let categoria of categorias"
+                [value]="categoria.id"
+              >
+                {{ categoria.nombreCategoria }}
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <!-- Selector de Producto -->
+          <ion-item>
+            <ion-label>Producto</ion-label>
+            <ion-select
+              placeholder="Seleccionar producto"
+              (ionChange)="onProductoChange($event)"
+              [disabled]="isProductoDisabled"
+            >
+              <ion-select-option
+                *ngFor="let producto of productosFiltrados"
+                [value]="producto.id"
+              >
+                {{ producto.nombreProducto }}
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <!-- Input de Cantidad -->
+          <ion-item>
+            <ion-label position="stacked">Cantidad</ion-label>
+            <ion-input
+              type="number"
+              [(ngModel)]="comandaSeleccionada.cantidad"
+              [disabled]="isCantidadDisabled"
+            ></ion-input>
+          </ion-item>
+
+          <!-- Botón Guardar -->
+          <ion-button
+            style="border-radius: 10px"
+            class="boton2"
+            expand="full"
+            (click)="addComanda()"
+          >
+            Guardar Pedido
+          </ion-button>
+        </ion-content>
+      </div>
+    </ng-template>
+  </ion-modal>
+
+  <!-- Lista de mesas -->
+  <ion-text class="recent-title font-title3">Tus Mesas</ion-text>
+  <div class="section-list" style="max-height: 70vh; overflow-y: auto">
+    <ion-grid class="section-grid">
+      <ion-row>
+        <ion-col
+          *ngFor="let mesa of filteredMesas; trackBy: trackMesas"
+          size-lg="6"
+          size="12"
+        >
+          <ion-row
+            class="section-container"
+            [style.background]="getMesaColor(mesa.id)"
+          >
+            <ion-col>
+              <ion-text class="font-title2">Mesa: {{ mesa.numero }}</ion-text>
+              <br />
+              <ion-text class="font-body">
+                Capacidad: {{ mesa.capacidad }}
+              </ion-text>
+              <br />
+              <br />
+
+              <!-- Acordeón de Ordenes o botón Agregar Cuenta -->
+              <ng-container *ngIf="isCuentaActiva(mesa.id); else agregarCuenta">
+                <ion-accordion-group style="margin-top: 20px">
+                  <ion-accordion style="background-color: transparent">
+                    <ion-item
+                      slot="header"
+                      class="accordion-header"
+                      style="background-color: transparent"
+                    >
+                      <ion-label class="accordion-label">Órdenes</ion-label>
+                    </ion-item>
+                    <div slot="content">
+                      <ion-accordion-group>
+                        <ng-container
+                          style="background-color: transparent"
+                          *ngFor="let comanda of getComandasForMesa(mesa.id)"
+                        >
+                          <ion-item>
+                            <ion-label>
+                              <h2>
+                                {{
+                                  getMenuNameByProductId(comanda.productoId) ||
+                                    "Producto no disponible"
+                                }}
+                              </h2>
+                              <h3>Cantidad: {{ comanda.cantidad }}</h3>
+                              <h3>Estado: {{ comanda.estado }}</h3>
+                            </ion-label>
+                            <ion-button
+                              *ngIf="comanda.estado !== 'Finalizado'"
+                              (click)="
+                                openUpdateModal(mesa, modalComanda, comanda)
+                              "
+                              color="prymary"
+                              fill="clear"
+                              slot="end"
+                            >
+                              <ion-icon name="create-outline"></ion-icon>
+                            </ion-button>
+                          </ion-item>
+                        </ng-container>
+                        <ion-button
+                          expand="block"
+                          class="boton2"
+                          (click)="openAddModal(mesa, modalAddComanda)"
+                        >
+                          <ion-icon
+                            slot="start"
+                            name="create-outline"
+                          ></ion-icon>
+                          Agregar Pedido
+                        </ion-button>
+                      </ion-accordion-group>
+                    </div>
+                  </ion-accordion>
+                </ion-accordion-group>
+              </ng-container>
+
+              <!-- Plantilla para agregar cuenta -->
+              <ng-template #agregarCuenta>
+                <ion-button
+                  expand="block"
+                  class="boton2"
+                  color="primary"
+                  (click)="confirmarAgregarCuenta(mesa.id)"
+                >
+                  <ion-icon slot="start" name="add-outline"></ion-icon>
+                  Agregar Cuenta
+                </ion-button>
+              </ng-template>
+            </ion-col>
+          </ion-row>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <!-- Infinite Scroll -->
+    <ion-infinite-scroll threshold="100px" (ionInfinite)="loadMore($event)">
+      <ion-infinite-scroll-content
+        loadingSpinner="bubbles"
+        loadingText="Cargando más mesas..."
+      ></ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+  </div>
+</div>

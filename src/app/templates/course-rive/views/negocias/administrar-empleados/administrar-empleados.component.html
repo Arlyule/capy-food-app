@@ -1,0 +1,179 @@
+<div style="margin-top: 60px">
+  <ion-text class="courses-list-title font-largeTitle">
+    Admin Empleados
+  </ion-text>
+
+  <!-- Barra de búsqueda -->
+  <ion-searchbar
+    [(ngModel)]="searchTerm"
+    (ionInput)="filterNegocios()"
+    debounce="300"
+    show-clear-button="focus"
+    class="custom"
+    placeholder="Buscar negocio..."
+    showCancelButton="focus"
+  ></ion-searchbar>
+
+  <!-- Modal para agregar empleado -->
+  <ion-modal [initialBreakpoint]="1" [breakpoints]="[0, 1]" #modal>
+    <ng-template>
+      <div class="block">
+        <ion-header>
+          <ion-toolbar>
+            <ion-title>Agregar Empleado</ion-title>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content class="ion-padding">
+          <form (ngSubmit)="addEmpleado()">
+            <ion-item>
+              <ion-label position="stacked">Nombre</ion-label>
+              <ion-input
+                [(ngModel)]="empleadoSeleccionado.nombre"
+                name="nombre"
+                type="text"
+                required
+              ></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">Teléfono</ion-label>
+              <ion-input
+                [(ngModel)]="empleadoSeleccionado.telefono"
+                name="telefono"
+                type="text"
+              ></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">Correo</ion-label>
+              <ion-input
+                [(ngModel)]="empleadoSeleccionado.correo"
+                name="correo"
+                type="email"
+                required
+              ></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">Usuario</ion-label>
+              <ion-select
+                [(ngModel)]="empleadoSeleccionado.usuarioId"
+                name="usuarioId"
+                placeholder="Selecciona..."
+                required
+              >
+                <ion-select-option
+                  *ngFor="let option of userOptions"
+                  [value]="option.value"
+                >
+                  {{ option.label }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <ion-button
+              style="border-radius: 10px"
+              class="boton2"
+              expand="full"
+              type="submit"
+            >
+              Agregar
+            </ion-button>
+          </form>
+        </ion-content>
+      </div>
+    </ng-template>
+  </ion-modal>
+
+  <!-- Lista de negocios -->
+  <ion-text class="recent-title font-title3">Tus Negocios</ion-text>
+  <div class="section-list" style="max-height: 70vh; overflow-y: auto">
+    <ion-grid class="section-grid">
+      <ion-row>
+        <ion-col
+          *ngFor="let negocio of filteredNegocios; trackBy: trackNegocios"
+          size-lg="6"
+          size="12"
+        >
+          <ion-row
+            class="section-container"
+            [style.background]="getNegocioColor(negocio.id)"
+          >
+            <ion-col>
+              <ion-text class="font-title2">{{ negocio.nombre }}</ion-text>
+              <br />
+              <ion-text class="font-body">
+                Teléfono: {{ negocio.telefono }}
+              </ion-text>
+              <br />
+              <ion-text class="font-body">
+                Correo: {{ negocio.correo }}
+              </ion-text>
+              <br />
+              <ion-text class="font-body">
+                Dirección: {{ negocio.direccion }}
+              </ion-text>
+              <br />
+
+              <!-- Acordeón con los empleados -->
+              <ion-accordion-group style="margin-top: 20px">
+                <ion-accordion style="background-color: transparent">
+                  <ion-item
+                    slot="header"
+                    class="accordion-header"
+                    style="background-color: transparent"
+                  >
+                    <ion-label>Empleados de {{ negocio.nombre }}</ion-label>
+                  </ion-item>
+                  <div slot="content">
+                    <ion-accordion-group>
+                      <ng-container
+                        *ngFor="
+                          let empleado of getEmpleadosByNegocio(negocio.id)
+                        "
+                      >
+                        <ion-item>
+                          <ion-label>
+                            <h3>{{ empleado.nombre }}</h3>
+                          </ion-label>
+                          <!-- Botón eliminar empleado -->
+                          <ion-button
+                            color="danger"
+                            fill="clear"
+                            (click)="deleteEmpleado(empleado.id)"
+                            slot="end"
+                          >
+                            <ion-icon name="trash-outline"></ion-icon>
+                          </ion-button>
+                        </ion-item>
+                      </ng-container>
+                      <ion-button
+                        expand="block"
+                        class="boton2"
+                        (click)="openAddEmpleadoModal(negocio, modal)"
+                      >
+                        <ion-icon
+                          slot="start"
+                          name="person-add-outline"
+                        ></ion-icon>
+                        Agregar Empleado
+                      </ion-button>
+                    </ion-accordion-group>
+                  </div>
+                </ion-accordion>
+              </ion-accordion-group>
+            </ion-col>
+          </ion-row>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <!-- Infinite Scroll -->
+    <ion-infinite-scroll threshold="100px" (ionInfinite)="loadMore($event)">
+      <ion-infinite-scroll-content
+        loadingSpinner="bubbles"
+        loadingText="Cargando más negocios..."
+      ></ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+  </div>
+</div>

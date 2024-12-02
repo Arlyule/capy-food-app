@@ -1,0 +1,51 @@
+<div class="side-menu">
+  <ion-row class="header">
+    <ion-icon class="user-icon" name="person-outline"></ion-icon>
+    <ion-col>
+      <!-- Aquí mostramos el nombre del usuario -->
+      <ion-text class="font-body">{{ username }}</ion-text>
+      <br />
+      <!-- Aquí mostramos la profesión del usuario -->
+      <ion-text class="user-profession font-subheadline">
+        {{ userProfession }}
+      </ion-text>
+    </ion-col>
+  </ion-row>
+
+  <div class="sections-container">
+    <div class="menu-list-section">
+      <ion-text class="browse-heading font-subheadline2">Opciones</ion-text>
+      <div class="menu-btn-list-container">
+        <cr-menu-row
+          #menuItems
+          *ngFor="let menu of menuItems; let i = index; trackBy: trackMenuItems"
+          [menu]="menu"
+          (onPress)="onMenuItemPress(i, menu)"
+        >
+          <ion-icon
+            class="menu-icon"
+            [name]="menu.artboard"
+            size="large"
+            *ngIf="menu.show"
+          ></ion-icon>
+          <ion-text class="menu-text">{{ menu.id }}</ion-text>
+        </cr-menu-row>
+      </div>
+    </div>
+  </div>
+
+  <div class="spacer"></div>
+  <div>
+    <ion-item
+      class="exit-btn"
+      button="true"
+      lines="none"
+      detail="false"
+      (click)="goBack()"
+      *ngIf="platform.is('capacitor')"
+    >
+      <ion-icon class="exit-icon" name="exit-outline"></ion-icon>
+      <ion-text class="font-headline">Exit</ion-text>
+    </ion-item>
+  </div>
+</div>

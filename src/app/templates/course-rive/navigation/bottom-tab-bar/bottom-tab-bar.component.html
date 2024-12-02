@@ -1,0 +1,23 @@
+<div class="gradient-border">
+  <ion-row class="tabs-container">
+    <ion-col
+      *ngFor="let tab of tabItems; trackBy: trackTabItems"
+      (click)="onIconPress(tab)"
+    >
+      <div class="active-indicator-container">
+        <div
+          class="active-indicator"
+          [ngClass]="selectedTab.id === tab.id ? 'expand' : ''"
+        ></div>
+      </div>
+
+      <!-- Aquí cambiamos el canvas de Rive por el componente ion-icon -->
+      <ion-icon
+        [name]="tab.artboard"
+        [style.opacity]="selectedTab.id === tab.id ? 1 : 0.5"
+        size="large"
+        *ngIf="tab.show"
+      ></ion-icon>
+    </ion-col>
+  </ion-row>
+</div>

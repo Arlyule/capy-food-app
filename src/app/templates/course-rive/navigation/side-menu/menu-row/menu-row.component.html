@@ -1,0 +1,18 @@
+<div>
+  <div class="seperator"></div>
+  <div
+    class="menu-btn-bg"
+    [style.width.px]="menu.id === 'Home' ? 272 : 0"
+  ></div>
+
+  <ion-row class="menu-btn-container" (click)="onPress.emit()">
+    <div class="icon-container">
+      <ion-icon
+        *ngIf="menu.show"
+        [name]="menu.artboard"
+        size="large"
+      ></ion-icon>
+    </div>
+    <ion-text class="font-headline">{{ menu.id }}</ion-text>
+  </ion-row>
+</div>

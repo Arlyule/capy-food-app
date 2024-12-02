@@ -1,0 +1,175 @@
+.courses-list-title {
+  padding: 0px 20px;
+}
+
+.recent-title {
+  padding: 0px 20px;
+}
+
+.courses-list {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding: 20px;
+  padding-bottom: 30px;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  .course-container {
+    width: 260px;
+    height: 310px;
+    position: relative;
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    padding: 30px;
+    border-radius: 30px;
+
+    background: linear-gradient(
+      to right bottom,
+      rgb(var(--course-bg)),
+      rgba(var(--course-bg), 0.5)
+    );
+    box-shadow: 0 12px 8px rgba(var(--course-bg), 0.3),
+      0 1px 2px rgba(var(--course-bg), 0.3);
+
+    .course-img {
+      width: 48px;
+      height: 50px;
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+
+    .course-title {
+      max-width: 170px;
+      margin-bottom: 8px;
+    }
+
+    .course-subtitle {
+      opacity: 0.7;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    .course-caption {
+      margin: 8px 0;
+    }
+
+    .spacer {
+      flex: 1;
+    }
+
+    ion-row.avatar-container {
+      ion-img {
+        width: 44px;
+        height: 44px;
+        border-radius: 22px;
+        overflow: hidden;
+      }
+      ion-img + ion-img {
+        margin-left: 8px;
+      }
+    }
+  }
+
+  .course-container + .course-container {
+    margin-left: 20px;
+  }
+}
+
+.section-list {
+  .section-grid {
+    --ion-grid-padding: 10px;
+
+    ion-col {
+      --ion-grid-column-padding: 10px;
+    }
+
+    .section-container {
+      border-radius: 30px;
+      padding: 10px 30px;
+      align-items: center;
+
+      ion-col {
+        --ion-grid-column-padding: 0px;
+      }
+      .spacing {
+        height: 8px;
+      }
+
+      .section-img {
+        width: 48px;
+        height: 50px;
+        margin-left: 20px;
+      }
+    }
+  }
+}
+
+/* Estilos personalizados para el acordeón */
+.accordion-header {
+  //background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro y translúcido */
+  border-radius: 10px; /* Bordes redondeados */
+}
+
+.accordion-label {
+  font-weight: bold; /* Texto en negrita */
+  /* Letras blancas */
+}
+
+ion-accordion {
+  --border-radius: 10px; /* Bordes redondeados */
+  --background: rgba(0, 0, 0, 0.5); /* Fondo translúcido */
+  --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Sombra para el acordeón */
+}
+
+ion-item {
+  --background: rgba(0, 0, 0, 0.3); /* Fondo opaco y translúcido */
+  --border-radius: 8px; /* Bordes del item del acordeón redondeados */
+  /* Letras blancas */
+}
+
+ion-accordion div {
+  /* Texto dentro del acordeón en blanco */
+}
+
+/* Estilo para el ion-accordion-group con el mismo fondo que el ion-row */
+ion-accordion-group {
+  --background: inherit; /* El fondo se hereda del ion-row (color dinámico) */
+}
+
+ion-accordion-group {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Espaciado uniforme entre ítems dentro de un acordeón */
+ion-item {
+  --border-radius: 8px; /* Bordes del item del acordeón redondeados */
+  margin-bottom: 10px; /* Espaciado entre ítems */
+}
+
+ion-item p {
+  /* Cambiar color a blanco */
+  font-weight: normal; /* Asegurarse de que no sean negritas */
+  font-size: small;
+}
+
+/* Estilo para las etiquetas h2 dentro de ion-item */
+ion-item h2 {
+  font-weight: bold; /* Asegurarse de que el texto sea en negritas */
+  /* Cambiar el color a blanco si es necesario */
+}
+
+ion-text,
+.h2 h2,
+ion-item h2,
+ion-item h3,
+.accordion-label {
+  color: white;
+}

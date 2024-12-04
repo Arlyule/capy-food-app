@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { negociosList, Negocio } from '../../../models/negocios';
+import { NegociosService } from '../../../services/negocios.service';
 
 @Component({
   selector: 'app-administrar-negocios',
@@ -7,12 +8,14 @@ import { negociosList, Negocio } from '../../../models/negocios';
   styleUrls: ['./administrar-negocios.component.scss'],
 })
 export class AdministrarNegociosComponent implements OnInit {
-  negocios = negociosList;
+  negocios: Negocio[] = [];
   filteredNegocios: Negocio[] = [...this.negocios];
   searchTerm: string = '';
   allNegocios: Negocio[] = [...this.negocios];
   negocioColors: Map<number, string> = new Map();
   selectedOption: string = '';
+
+  constructor(private negociosService: NegociosService) { }
 
   // Lista de opciones para el dropdown
   options = [
@@ -37,15 +40,43 @@ export class AdministrarNegociosComponent implements OnInit {
     { name: 'direccion', placeholder: 'Dirección', type: 'text' }
   ];
 
-  constructor() { }
-
   ngOnInit() {
-    // Asignar colores aleatorios a los negocios
-    this.negocios.forEach((negocio) => {
-      this.negocioColors.set(negocio.id, this.generateRandomColor());
-    });
+    this.cargarNegocios();
   }
 
+  // Método para cargar negocios desde el servicio
+  cargarNegocios() {
+    const filtro = {
+      "data": {},
+      "accion": 1
+    };
+    this.negociosService.getAllNegocios(filtro).subscribe({
+      next: (response: any) => {
+        if (response.codigo === "0") {
+          console.log(response.info);
+          // Mapea la respuesta para asegurar que cumpla con el modelo `Negocio`
+          this.negocios = response.info.map((item: any, index: number) => ({
+            id: index + 1, // Asignar un ID único temporal
+            nombre: item.nombre,
+            telefono: item.telefono,
+            correo: item.correo,
+            direccion: item.direccion,
+            usuarioId: 0, // Si el backend no lo devuelve, se asigna un valor predeterminado
+          }));
+          this.filteredNegocios = [...this.negocios];
+          // Asignar colores aleatorios a los negocios
+          this.negocios.forEach((negocio) =>
+            this.negocioColors.set(negocio.id, this.generateRandomColor())
+          );
+        } else {
+          console.error('Error en la consulta:', response.mensaje);
+        }
+      },
+      error: (err) => {
+        console.error('Error al obtener los negocios:', err);
+      },
+    });
+  }
   // Filtrar negocios por búsqueda
   filterNegocios() {
     this.filteredNegocios = this.allNegocios.filter(
@@ -66,22 +97,48 @@ export class AdministrarNegociosComponent implements OnInit {
     this.negocioColors.delete(id);
   }
 
-  // Agregar negocio
   addNegocio(data: any) {
     if (data.nombre && data.telefono && data.correo && data.direccion) {
-      const newNegocio: Negocio = {
-        id: this.allNegocios.length > 0 ? Math.max(...this.allNegocios.map(n => n.id)) + 1 : 1, // Generar ID único
-        nombre: data.nombre,
-        telefono: data.telefono,
-        correo: data.correo,
-        direccion: data.direccion,
-        usuarioId: parseInt(this.selectedOption), // Guardar la opción seleccionada (aunque está vacía)
+      // Formatear los datos según el requerimiento del backend
+      const negocioData = {
+        "nombre": data.nombre,
+        "telefono": data.telefono,
+        "correo": data.correo,
+        "direccion": data.direccion
       };
-      this.allNegocios.push(newNegocio);
-      this.filteredNegocios.push(newNegocio);
-      this.negocioColors.set(newNegocio.id, this.generateRandomColor());
+      
+      console.log(negocioData);
+  
+      // Llamar al servicio para guardar el negocio
+      this.negociosService.guardarNegocio(negocioData).subscribe({
+        next: (response) => {
+          if (response.codigo === "0") {
+            console.log('Negocio agregado con éxito:', response);
+            // Actualizar las listas locales con el nuevo negocio
+            const newNegocio: Negocio = {
+              id: this.allNegocios.length > 0 ? Math.max(...this.allNegocios.map(n => n.id)) + 1 : 1, // Generar ID único
+              nombre: negocioData.nombre,
+              telefono: negocioData.telefono,
+              correo: negocioData.correo,
+              direccion: negocioData.direccion,
+              usuarioId: parseInt(this.selectedOption), // Si aplica
+            };
+            this.allNegocios.push(newNegocio);
+            this.filteredNegocios.push(newNegocio);
+            this.negocioColors.set(newNegocio.id, this.generateRandomColor());
+          } else {
+            console.error('Error al agregar negocio:', response.mensaje);
+          }
+        },
+        error: (err) => {
+          console.error('Error al realizar la solicitud:', err);
+        }
+      });
+    } else {
+      console.error('Todos los campos son obligatorios para agregar un negocio.');
     }
   }
+  
 
   // Método actualizado para devolver el degradado en formato rgb
   generateRandomColor(): string {

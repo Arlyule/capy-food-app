@@ -55,18 +55,18 @@
             </ion-item>
 
             <ion-item>
-              <ion-label position="stacked">Usuario</ion-label>
+              <ion-label position="stacked">Rol</ion-label>
               <ion-select
-                [(ngModel)]="empleadoSeleccionado.usuarioId"
-                name="usuarioId"
+                [(ngModel)]="empleadoSeleccionado.rol_id"
+                name="rol_id"
                 placeholder="Selecciona..."
                 required
               >
                 <ion-select-option
-                  *ngFor="let option of userOptions"
-                  [value]="option.value"
+                  *ngFor="let option of roles"
+                  [value]="option.id"
                 >
-                  {{ option.label }}
+                  {{ option.nombrerol }}
                 </ion-select-option>
               </ion-select>
             </ion-item>
@@ -122,46 +122,44 @@
                     slot="header"
                     class="accordion-header"
                     style="background-color: transparent"
+                    (click)="cargarEmpleados(negocio.id)"
                   >
                     <ion-label>Empleados de {{ negocio.nombre }}</ion-label>
                   </ion-item>
                   <div slot="content">
                     <ion-accordion-group>
-                      <ng-container
-                        *ngFor="
-                          let empleado of getEmpleadosByNegocio(negocio.id)
-                        "
-                      >
-                        <ion-item>
-                          <ion-label>
-                            <h3>{{ empleado.nombre }}</h3>
-                          </ion-label>
-                          <!-- Botón eliminar empleado -->
-                          <ion-button
-                            color="danger"
-                            fill="clear"
-                            (click)="deleteEmpleado(empleado.id)"
-                            slot="end"
-                          >
-                            <ion-icon name="trash-outline"></ion-icon>
-                          </ion-button>
-                        </ion-item>
-                      </ng-container>
-                      <ion-button
-                        expand="block"
-                        class="boton2"
-                        (click)="openAddEmpleadoModal(negocio, modal)"
-                      >
-                        <ion-icon
-                          slot="start"
-                          name="person-add-outline"
-                        ></ion-icon>
-                        Agregar Empleado
-                      </ion-button>
+                      <div *ngIf="empleados && empleados.length > 0; else noEmpleados">
+                        <ng-container *ngFor="let empleado of empleados">
+                          <ion-item>
+                            {{ empleado.nombre }} - {{ empleado.telefono }} - {{ empleado.correo }}
+                          </ion-item>
+                        </ng-container>
+                      </div>
                     </ion-accordion-group>
+                    
+                    <ng-template #noEmpleados>
+                      <ion-item>
+                        <ion-label>No se encontraron empleados para este negocio.</ion-label>
+                      </ion-item>
+                    </ng-template>
+                    
                   </div>
+                  
                 </ion-accordion>
-              </ion-accordion-group>
+
+                <ion-button
+                expand="block"
+                class="boton2"
+                (click)="openAddEmpleadoModal(negocio, modal)"
+              >
+                <ion-icon
+                  slot="start"
+                  name="person-add-outline"
+                ></ion-icon>
+                Agregar Empleado
+              </ion-button>
+
+              </ion-accordion-group>              
             </ion-col>
           </ion-row>
         </ion-col>
@@ -169,11 +167,11 @@
     </ion-grid>
 
     <!-- Infinite Scroll -->
-    <ion-infinite-scroll threshold="100px" (ionInfinite)="loadMore($event)">
+    <!-- <ion-infinite-scroll threshold="100px" (ionInfinite)="loadMore($event)">
       <ion-infinite-scroll-content
         loadingSpinner="bubbles"
         loadingText="Cargando más negocios..."
       ></ion-infinite-scroll-content>
-    </ion-infinite-scroll>
+    </ion-infinite-scroll> -->
   </div>
 </div>

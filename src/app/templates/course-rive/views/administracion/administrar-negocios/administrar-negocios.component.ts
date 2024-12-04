@@ -56,7 +56,7 @@ export class AdministrarNegociosComponent implements OnInit {
           console.log(response.info);
           // Mapea la respuesta para asegurar que cumpla con el modelo `Negocio`
           this.negocios = response.info.map((item: any, index: number) => ({
-            id: index + 1, // Asignar un ID único temporal
+            id: item.id, // Asignar un ID único temporal
             nombre: item.nombre,
             telefono: item.telefono,
             correo: item.correo,

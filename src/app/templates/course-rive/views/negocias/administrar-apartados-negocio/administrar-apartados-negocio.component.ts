@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Negocio, negociosList } from '../../../models/negocios';
 import { Mesa, mesasList } from '../../../models/mesas';
 import { Menu, menusList } from '../../../models/menu';
+import { NegociosService } from '../../../services/negocios.service';
 
 @Component({
   selector: 'app-administrar-apartados-negocio',
@@ -9,7 +10,7 @@ import { Menu, menusList } from '../../../models/menu';
   styleUrls: ['./administrar-apartados-negocio.component.scss'],
 })
 export class AdministrarApartadosNegocioComponent implements OnInit {
-  negocios = negociosList;
+  negocios: Negocio[] = [];
   menus = mesasList;
   filteredNegocios: Negocio[] = [...this.negocios];
   searchTerm: string = '';
@@ -41,12 +42,60 @@ export class AdministrarApartadosNegocioComponent implements OnInit {
     { label: 'Opción 3', value: '3' },
   ];
 
-  constructor() { }
+  constructor(private negociosService: NegociosService) { }
 
   ngOnInit() {
     // Asignar colores aleatorios a los negocios
-    this.negocios.forEach((negocio) => {
-      this.negocioColors.set(negocio.id, this.generateRandomColor());
+    const usuario = localStorage.getItem('user');
+    if (usuario) {
+      const usuarioObj = JSON.parse(usuario);
+      console.log(usuarioObj.rol_id);
+      this.cargarNegocios(usuarioObj.id, usuarioObj.rol_id);
+    } else {
+      console.error('No se encontró el usuario en localStorage.');
+    }
+  }
+
+  cargarNegocios(usuario_id: any, rol_id: any) {
+    let filtro;
+    if(rol_id == 1){
+      filtro = {
+        "data": {},
+        "accion": 1
+      };
+    } else {
+      filtro = {
+        "data": {
+          "usuario_id": usuario_id
+        },
+        "accion": 3
+      };
+    }
+    this.negociosService.getAllNegocios(filtro).subscribe({
+      next: (response: any) => {
+        if (response.codigo === "0") {
+          console.log(response.info);
+          // Mapea la respuesta para asegurar que cumpla con el modelo `Negocio`
+          this.negocios = response.info.map((item: any, index: number) => ({
+            id: item.id, // Asignar un ID único temporal
+            nombre: item.nombre,
+            telefono: item.telefono,
+            correo: item.correo,
+            direccion: item.direccion,
+            usuarioId: 0, // Si el backend no lo devuelve, se asigna un valor predeterminado
+          }));
+          this.filteredNegocios = [...this.negocios];
+          // Asignar colores aleatorios a los negocios
+          this.negocios.forEach((negocio) =>
+            this.negocioColors.set(negocio.id, this.generateRandomColor())
+          );
+        } else {
+          console.error('Error en la consulta:', response.mensaje);
+        }
+      },
+      error: (err) => {
+        console.error('Error al obtener los negocios:', err);
+      },
     });
   }
 

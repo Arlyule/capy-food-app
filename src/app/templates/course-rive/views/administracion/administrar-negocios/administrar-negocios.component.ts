@@ -121,7 +121,7 @@ export class AdministrarNegociosComponent implements OnInit {
               telefono: negocioData.telefono,
               correo: negocioData.correo,
               direccion: negocioData.direccion,
-              usuarioId: parseInt(this.selectedOption), // Si aplica
+              usuario_id: parseInt(this.selectedOption), // Si aplica
             };
             this.allNegocios.push(newNegocio);
             this.filteredNegocios.push(newNegocio);

@@ -58,7 +58,7 @@ export class AdministrarEmpleadosComponent implements OnInit {
             nombre: empleado.nombre,
             telefono: empleado.telefono,
             correo: empleado.correo,
-            negocioId: empleado.negocioId,
+            negocio_id: empleado.negocio_id,
             fechaRegistro: empleado.fechaRegistro,
             usuarioId: empleado.usuarioId,
           }));
@@ -279,8 +279,8 @@ export class AdministrarEmpleadosComponent implements OnInit {
     }
   }
 
-  getEmpleadosByNegocio(negocioId: number): Empleado[] {
-    return empleadosList.filter((empleado) => empleado.negocio_id === negocioId);
+  getEmpleadosByNegocio(negocio_id: number): Empleado[] {
+    return empleadosList.filter((empleado) => empleado.negocio_id === negocio_id);
   }
 
   generateRandomColor(): string {

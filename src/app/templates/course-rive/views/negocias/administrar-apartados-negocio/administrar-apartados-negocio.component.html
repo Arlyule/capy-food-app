@@ -101,7 +101,7 @@
             </ion-item>
 
             <ion-item>
-              <ion-label position="stacked">Cantidad</ion-label>
+              <ion-label position="stacked">Capacidad</ion-label>
               <ion-input
                 [(ngModel)]="mesaSeleccionado.capacidad"
                 name="telefono"
@@ -171,29 +171,32 @@
                     slot="header"
                     class="accordion-header"
                     style="background-color: transparent"
+                    (click)="cargarMesas(negocio.id)"
                   >
                     <ion-label>Mesas de {{ negocio.nombre }}</ion-label>
                   </ion-item>
                   <div slot="content">
                     <ion-accordion-group>
-                      <ng-container
-                        *ngFor="let menus of getMesasByNegocio(negocio.id)"
-                      >
-                        <ion-item>
-                          <ion-label>
-                            <h3>Mesa : {{ menus.numero }}</h3>
-                          </ion-label>
-                          <!-- Botón eliminar empleado -->
-                          <ion-button
-                            color="danger"
-                            fill="clear"
-                            (click)="menus.id ? deleteMesa(menus.id) : null"
-                            slot="end"
-                          >
-                            <ion-icon name="trash-outline"></ion-icon>
-                          </ion-button>
-                        </ion-item>
-                      </ng-container>
+                      <div *ngIf="mesas && mesas.length > 0; else noMesas">
+                        <ng-container
+                        *ngFor="let mesa of mesas"
+                        >
+                          <ion-item>
+                            <ion-label>
+                              <h3>Mesa : {{ mesa.numero }}</h3>
+                            </ion-label>
+                            <!-- Botón eliminar mesas -->
+                            <ion-button
+                              color="danger"
+                              fill="clear"
+                              (click)="mesa.id ? deleteMesa(mesa.id) : null"
+                              slot="end"
+                            >
+                              <ion-icon name="trash-outline"></ion-icon>
+                            </ion-button>
+                          </ion-item>
+                        </ng-container>
+                      </div>
                       <ion-button
                         expand="block"
                         class="boton2"
@@ -206,6 +209,11 @@
                         Agregar Mesa
                       </ion-button>
                     </ion-accordion-group>
+                    <ng-template #noMesas>
+                      <ion-item>
+                        <ion-label>No se encontraron mesas para este negocio.</ion-label>
+                      </ion-item>
+                    </ng-template>
                   </div>
                 </ion-accordion>
               </ion-accordion-group>

@@ -17,7 +17,17 @@ export class MesasService {
  * @returns Observable<any>
  */
   getMesas(data: any): Observable<any> {
-    const url = `${this.apiUrl}/sps-mesas`;
+    const url = `${this.apiUrl}/mesas`;
     return this.http.post<any>(url, data);
   }
+
+    /**
+   * Función para listar mesas
+   * @param data Datos del filtrado
+   * @returns Observable<any>
+   */
+    crudMesas(data: any): Observable<any> {
+      const url = `${this.apiUrl}/crud-mesas`;
+      return this.http.post<any>(url, data);
+    }
 }

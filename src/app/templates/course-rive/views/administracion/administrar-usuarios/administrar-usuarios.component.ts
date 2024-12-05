@@ -75,7 +75,7 @@ export class AdministrarUsuariosComponent implements OnInit {
         telefono: data.telefono,
         correo: data.correo,
         direccion: data.direccion,
-        usuarioId: parseInt(this.selectedOption), // Guardar la opción seleccionada (aunque está vacía)
+        usuario_id: parseInt(this.selectedOption), // Guardar la opción seleccionada (aunque está vacía)
       };
       this.allNegocios.push(newNegocio);
       this.filteredNegocios.push(newNegocio);

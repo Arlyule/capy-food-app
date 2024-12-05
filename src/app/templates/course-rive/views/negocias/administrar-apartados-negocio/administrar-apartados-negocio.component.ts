@@ -3,6 +3,7 @@ import { Negocio, negociosList } from '../../../models/negocios';
 import { Mesa, mesasList } from '../../../models/mesas';
 import { Menu, menusList } from '../../../models/menu';
 import { NegociosService } from '../../../services/negocios.service';
+import { MesasService } from '../../../services/mesas.service';
 
 @Component({
   selector: 'app-administrar-apartados-negocio',
@@ -11,6 +12,7 @@ import { NegociosService } from '../../../services/negocios.service';
 })
 export class AdministrarApartadosNegocioComponent implements OnInit {
   negocios: Negocio[] = [];
+  mesas: Mesa[] = [];
   menus = mesasList;
   filteredNegocios: Negocio[] = [...this.negocios];
   searchTerm: string = '';
@@ -24,13 +26,13 @@ export class AdministrarApartadosNegocioComponent implements OnInit {
     telefono: '',
     correo: '',
     direccion: '',
-    usuarioId: 0,
+    usuario_id: 0,
   };
 
   mesaSeleccionado: Mesa = {
     id: 0,
     numero: 0,
-    negocioId: 0,
+    negocio_id: 0,
     capacidad: 0,
   }
 
@@ -42,7 +44,7 @@ export class AdministrarApartadosNegocioComponent implements OnInit {
     { label: 'Opción 3', value: '3' },
   ];
 
-  constructor(private negociosService: NegociosService) { }
+  constructor(private negociosService: NegociosService, private mesasService: MesasService) { }
 
   ngOnInit() {
     // Asignar colores aleatorios a los negocios
@@ -58,7 +60,7 @@ export class AdministrarApartadosNegocioComponent implements OnInit {
 
   cargarNegocios(usuario_id: any, rol_id: any) {
     let filtro;
-    if(rol_id == 1){
+    if (rol_id == 1) {
       filtro = {
         "data": {},
         "accion": 1
@@ -82,7 +84,7 @@ export class AdministrarApartadosNegocioComponent implements OnInit {
             telefono: item.telefono,
             correo: item.correo,
             direccion: item.direccion,
-            usuarioId: 0, // Si el backend no lo devuelve, se asigna un valor predeterminado
+            usuario_id: 0, // Si el backend no lo devuelve, se asigna un valor predeterminado
           }));
           this.filteredNegocios = [...this.negocios];
           // Asignar colores aleatorios a los negocios
@@ -95,6 +97,30 @@ export class AdministrarApartadosNegocioComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error al obtener los negocios:', err);
+      },
+    });
+  }
+
+  cargarMesas(negocio_id: number) {
+    const filtro = {
+      data: { negocio_id: negocio_id },
+      accion: 1,
+    };
+
+    console.log(filtro);
+
+    this.mesasService.getMesas(filtro).subscribe({
+      next: (response: any) => {
+        if (response.codigo === '0') {
+          console.log('Empleados cargados:', response.info);
+          this.mesas = response.info;
+        } else {
+          console.error('Error al cargar mesas:', response.mensaje);
+          this.mesas = [];
+        }
+      },
+      error: (err) => {
+        console.error('Error en la petición de mesas:', err);
       },
     });
   }
@@ -118,20 +144,71 @@ export class AdministrarApartadosNegocioComponent implements OnInit {
 
   // Actualizar negocio
   updateNegocio() {
+    console.log('Vamos a actualizar');
+    const alert = document.createElement('ion-alert');
+    alert.header = '¿Estás seguro?';
+    alert.message = '¿Seguro que quieres actualizar este negocio?';
+    alert.buttons = [
+      {
+        text: 'Cancelar',
+        role: 'cancel',
+        handler: () => {
+          console.log('Negocio no actualizado');
+        },
+      },
+      {
+        text: 'Confirmar',
+        handler: () => {
+          //this.removeMesa(mesaId);
+          console.log({ ...this.negocioSeleccionado });
+          const negocioData = {
+            "data": { ...this.negocioSeleccionado },
+            "accion": 2
+          }
+          this.negociosService.crudNegocio(negocioData).subscribe({
+            next: (response) => {
+              if (response.codigo === "0") {
+                console.log('Negocio actualizado con éxito:', response);
+                // Actualizar las listas locales con el nuevo negocio
+                const usuario = localStorage.getItem('user');
+                if (usuario) {
+                  const usuarioObj = JSON.parse(usuario);
+                  console.log(usuarioObj.rol_id);
+                  this.cargarNegocios(usuarioObj.id, usuarioObj.rol_id);
+                } else {
+                  console.error('No se encontró el usuario en localStorage.');
+                }
+                //this.cargarNegocios();
+              } else {
+                console.error('Error al agregar negocio:', response.mensaje);
+              }
+            },
+            error: (err) => {
+              console.error('Error al realizar la solicitud:', err);
+            }
+          });
+        },
+      },
+    ];
+
+    document.body.appendChild(alert);
+    alert.present();
+
     if (this.negocioSeleccionado !== null) {
-      const index = this.allNegocios.findIndex(
-        (n) => n.id === this.negocioSeleccionado?.id // Usamos el operador de encadenamiento opcional aquí
-      );
-      if (index !== -1) {
-        // Confirmar actualización
-        const confirmUpdate = confirm(
-          '¿Estás seguro de que deseas actualizar este negocio?'
-        );
-        if (confirmUpdate) {
-          this.allNegocios[index] = { ...this.negocioSeleccionado };
-          this.filterNegocios(); // Actualizar lista filtrada
-          alert('Negocio actualizado correctamente.');
-        }
+
+      if (this.negocioSeleccionado?.id != null) {
+        // // Confirmar actualización
+        // const confirmUpdate = confirm(
+        //   '¿Estás seguro de que deseas actualizar este negocio?'
+        // );
+        // if (confirmUpdate) {
+        //   // this.allNegocios[index] = { ...this.negocioSeleccionado };
+        //   // this.filterNegocios(); // Actualizar lista filtrada
+
+        //   console.log({ ...this.negocioSeleccionado });
+
+        //   alert('Negocio actualizado correctamente.');
+        // }
       }
     }
   }
@@ -168,12 +245,12 @@ export class AdministrarApartadosNegocioComponent implements OnInit {
   }
 
   openAddEmpleadoModal(negocio: Negocio, modal: any) {
-    this.mesaSeleccionado.negocioId = negocio.id; // Asignar el negocioId
+    this.mesaSeleccionado.negocio_id = negocio.id; // Asignar el negocio_id
     modal.present();
   }
 
-  getMesasByNegocio(negocioId: number): Mesa[] {
-    return mesasList.filter(mesa => mesa.negocioId === negocioId);
+  getMesasByNegocio(negocio_id: number): Mesa[] {
+    return mesasList.filter(mesa => mesa.negocio_id === negocio_id);
   }
 
   deleteMesa(mesaId: number) {
@@ -218,7 +295,7 @@ export class AdministrarApartadosNegocioComponent implements OnInit {
   }
 
   addMesa() {
-    if (this.mesaSeleccionado.negocioId) {
+    if (this.mesaSeleccionado.negocio_id) {
       // Crear la alerta de confirmación con los datos del empleado
       const confirmAlert = document.createElement('ion-alert');
       confirmAlert.header = 'Confirmar Agregar Mesa';
@@ -242,25 +319,59 @@ export class AdministrarApartadosNegocioComponent implements OnInit {
           text: 'Confirmar',
           handler: () => {
             // Agregar el nuevo empleado a la lista global
-            mesasList.push({ ...this.mesaSeleccionado });
-
-            // Resetear el empleado seleccionado
-            this.mesaSeleccionado = {
-              id: 0,
-              numero: 0,
-              capacidad: 0,
-              negocioId: 0,
+            const { id, ...mesa } = this.mesaSeleccionado; // Excluye el campo 'id'
+            const mesaData = {
+              accion: 1, // Supongamos que la acción 1 es "agregar"
+              data: mesa,
             };
-            this.filterNegocios(); // Actualizar la lista filtrada
 
-            // Crear la alerta de éxito
-            const successAlert = document.createElement('ion-alert');
-            successAlert.header = 'Mesa Agregada';
-            successAlert.message = 'La mesaha sido agregado correctamente.';
-            successAlert.buttons = ['Aceptar'];
+            console.log(mesaData);
 
-            document.body.appendChild(successAlert);
-            successAlert.present();
+            //mesasList.push({ ...this.mesaSeleccionado });
+
+            this.mesasService.crudMesas(mesaData).subscribe({
+              next: (response: any) => {
+                console.log(response);
+                if (response.codigo === '0') {
+                  // Crear la alerta de éxito
+                  const successAlert = document.createElement('ion-alert');
+                  successAlert.header = 'Mesa Agregada';
+                  successAlert.message = 'La mesa ha sido agregado correctamente.';
+                  successAlert.buttons = ['Aceptar'];
+
+                  document.body.appendChild(successAlert);
+                  successAlert.present();
+
+                  // Recargar la lista de empleados
+                  this.cargarMesas(this.mesaSeleccionado.negocio_id);
+                  this.mesaSeleccionado = {
+                    id: 0,
+                    numero: 0,
+                    capacidad: 0,
+                    negocio_id: 0,
+                  };
+
+                } else {
+                  const errorAlert = document.createElement('ion-alert');
+                  errorAlert.header = 'Error';
+                  errorAlert.message = `No se pudo agregar el empleado: ${response.mensaje}`;
+                  errorAlert.buttons = ['Aceptar'];
+
+                  document.body.appendChild(errorAlert);
+                  errorAlert.present();
+                }
+              },
+              error: (err) => {
+                const errorAlert = document.createElement('ion-alert');
+                errorAlert.header = 'Error';
+                errorAlert.message = 'Hubo un problema al agregar el empleado.';
+                errorAlert.buttons = ['Aceptar'];
+
+                document.body.appendChild(errorAlert);
+                errorAlert.present();
+                console.error('Error en la solicitud:', err);
+              },
+            });
           },
         },
       ];

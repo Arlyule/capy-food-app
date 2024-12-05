@@ -33,4 +33,14 @@ export class NegociosService {
     return this.http.post<any>(url, { data, accion: 1 });
   }
 
+    /**
+  * Función para guardar un negocio
+  * @param data Datos del negocio
+  * @returns Observable<any>
+  */
+    crudNegocio(data: any): Observable<any> {
+      const url = `${this.apiUrl}/crud-clientes-negocios`;
+      return this.http.post<any>(url, data);
+    }
+
 }

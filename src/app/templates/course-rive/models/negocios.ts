@@ -6,7 +6,7 @@ export interface Negocio {
   direccion?: string;
   activo?: boolean;
   fechaRegistro?: string;
-  usuarioId?: number;
+  usuario_id?: number;
 }
 
 export const negociosList: Negocio[] = [
@@ -18,7 +18,7 @@ export const negociosList: Negocio[] = [
     direccion: "Dirección de ejemplo",
     activo: true,
     fechaRegistro: new Date().toISOString(),
-    usuarioId: 1,
+    usuario_id: 1,
   },
   {
     id: 2,
@@ -28,7 +28,7 @@ export const negociosList: Negocio[] = [
     direccion: "Otra dirección ejemplo",
     activo: true,
     fechaRegistro: new Date().toISOString(),
-    usuarioId: 1,
+    usuario_id: 1,
   },
   {
     id: 3,
@@ -38,7 +38,7 @@ export const negociosList: Negocio[] = [
     direccion: "Calle 123, Ciudad X",
     activo: true,
     fechaRegistro: new Date().toISOString(),
-    usuarioId: 1,
+    usuario_id: 1,
   },
   {
     id: 4,
@@ -48,7 +48,7 @@ export const negociosList: Negocio[] = [
     direccion: "Avenida Principal, Zona 4",
     activo: true,
     fechaRegistro: new Date().toISOString(),
-    usuarioId: 1,
+    usuario_id: 1,
   },
   {
     id: 5,
@@ -58,7 +58,7 @@ export const negociosList: Negocio[] = [
     direccion: "Calle Ficticia, Ciudad Y",
     activo: true,
     fechaRegistro: new Date().toISOString(),
-    usuarioId: 1,
+    usuario_id: 1,
   },
   {
     id: 6,
@@ -68,7 +68,7 @@ export const negociosList: Negocio[] = [
     direccion: "Calle Real, Ciudad Z",
     activo: true,
     fechaRegistro: new Date().toISOString(),
-    usuarioId: 1,
+    usuario_id: 1,
   },
   {
     id: 7,
@@ -78,7 +78,7 @@ export const negociosList: Negocio[] = [
     direccion: "Calle 45, Zona Norte",
     activo: true,
     fechaRegistro: new Date().toISOString(),
-    usuarioId: 1,
+    usuario_id: 1,
   },
   {
     id: 8,
@@ -88,7 +88,7 @@ export const negociosList: Negocio[] = [
     direccion: "Av. Independencia, Ciudad W",
     activo: true,
     fechaRegistro: new Date().toISOString(),
-    usuarioId: 1,
+    usuario_id: 1,
   },
   {
     id: 9,
@@ -98,7 +98,7 @@ export const negociosList: Negocio[] = [
     direccion: "Calle Central, Ciudad V",
     activo: true,
     fechaRegistro: new Date().toISOString(),
-    usuarioId: 1,
+    usuario_id: 1,
   },
   {
     id: 10,
@@ -108,6 +108,6 @@ export const negociosList: Negocio[] = [
     direccion: "Plaza Mayor, Zona 10",
     activo: true,
     fechaRegistro: new Date().toISOString(),
-    usuarioId: 1,
+    usuario_id: 1,
   },
 ];

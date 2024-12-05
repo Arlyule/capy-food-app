@@ -26,7 +26,7 @@ export class ComandaComponent implements OnInit {
     id: 0,
     numero: 0,
     capacidad: 0,
-    negocioId: 0,
+    negocio_id: 0,
   };
 
   // Variable para la comanda seleccionada

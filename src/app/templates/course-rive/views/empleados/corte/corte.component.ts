@@ -50,8 +50,8 @@ export class CorteComponent implements OnInit {
   }
 
   // Obtener el nombre del negocio
-  getNegocioNombre(negocioId: number): string {
-    const negocio = negociosList.find(neg => neg.id === negocioId);
+  getNegocioNombre(negocio_id: number): string {
+    const negocio = negociosList.find(neg => neg.id === negocio_id);
     return negocio ? negocio.nombre : '';
   }
 

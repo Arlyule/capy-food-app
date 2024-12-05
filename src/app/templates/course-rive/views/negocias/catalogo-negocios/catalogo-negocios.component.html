@@ -32,19 +32,19 @@
               <ion-text class="font-title2">{{ negocio.nombre }}</ion-text>
               <br />
               <div class="spacing"></div>
-              <ion-text class="font-body"
-                >Teléfono: {{ negocio.telefono }}</ion-text
-              >
+              <ion-text class="font-body">
+                Teléfono: {{ negocio.telefono }}
+              </ion-text>
               <br />
-              <ion-text class="font-body"
-                >Correo: {{ negocio.correo }}</ion-text
-              >
+              <ion-text class="font-body">
+                Correo: {{ negocio.correo }}
+              </ion-text>
               <br />
-              <ion-text class="font-body"
-                >Dirección: {{ negocio.direccion }}</ion-text
-              >
+              <ion-text class="font-body">
+                Dirección: {{ negocio.direccion }}
+              </ion-text>
 
-              <!-- Acordeón -->
+              <!-- Acordeón para el menú del negocio -->
               <ion-accordion-group style="margin-top: 20px">
                 <ion-accordion
                   style="background-color: transparent"
@@ -55,59 +55,96 @@
                   </ion-item>
                   <div slot="content">
                     <ion-accordion-group>
-                      <ng-container *ngFor="let categoria of categoriasList">
-                        <ng-container
-                          *ngIf="categoria.negocioId === negocio.id"
+                      <!-- Categorías principales -->
+                      <ng-container
+                        *ngFor="
+                          let categoria of categorias;
+                          trackBy: trackCategorias
+                        "
+                      >
+                        <ion-accordion
+                          style="background-color: transparent"
+                          value="categoria_{{ categoria.id_categoria }}"
                         >
-                          <ion-accordion
-                            style="background-color: transparent"
-                            value="categoria_{{ categoria.id }}"
-                          >
-                            <ion-item slot="header" class="accordion-header">
-                              <ion-label class="accordion-label">{{
-                                categoria.nombreCategoria
-                              }}</ion-label>
-                            </ion-item>
-                            <div class="ion-padding" slot="content">
-                              <ion-list style="background-color: transparent">
-                                <ng-container
-                                  *ngFor="
-                                    let menu of menusList;
-                                    trackBy: trackMenus
-                                  "
+                          <ion-item slot="header" class="accordion-header">
+                            <ion-label class="accordion-label">
+                              {{ categoria.nombre_categoria }}
+                            </ion-label>
+                          </ion-item>
+                          <div slot="content">
+                            <ion-accordion-group>
+                              <!-- Subcategorías -->
+                              <ng-container
+                                *ngFor="
+                                  let subcategoria of categoria.subcategorias
+                                "
+                              >
+                                <ion-accordion
                                   style="background-color: transparent"
+                                  value="subcategoria_{{
+                                    subcategoria.id_subcategoria
+                                  }}"
+                                  *ngIf="
+                                    subcategoria.subcategoria_negocio_id ===
+                                      categoria.id_categoria &&
+                                    subcategoria.subcategoria_negocio_id ===
+                                      negocio.id
+                                  "
                                 >
                                   <ion-item
-                                    *ngIf="
-                                      menu.negocioId === negocio.id &&
-                                      menu.categoriaId === categoria.id
-                                    "
-                                    style="background-color: transparent"
+                                    slot="header"
+                                    class="accordion-header"
                                   >
-                                    <ion-label>
-                                      <h2>{{ menu.nombreProducto }}</h2>
-                                      <h3>{{ menu.descripcion }}</h3>
-                                      <h3>
-                                        <strong>Precio:</strong>
-                                        ${{ menu.precio }}
-                                      </h3>
+                                    <ion-label class="accordion-label">
+                                      {{ subcategoria.nombre_subcategoria }}
                                     </ion-label>
-                                    <ion-thumbnail slot="start">
-                                      <img
-                                        [src]="
-                                          menu.imagen ||
-                                          'https://ionicframework.com/docs/img/demos/thumbnail.svg'
-                                        "
-                                        alt="Imagen del producto"
-                                        (error)="handleImageError($event)"
-                                      />
-                                    </ion-thumbnail>
                                   </ion-item>
-                                </ng-container>
-                              </ion-list>
-                            </div>
-                          </ion-accordion>
-                        </ng-container>
+                                  <div slot="content">
+                                    <ion-list
+                                      style="background-color: transparent"
+                                    >
+                                      <!-- Productos -->
+                                      <ng-container
+                                        *ngFor="
+                                          let menu of menus.get(negocio.id)
+                                        "
+                                      >
+                                        <ion-item
+                                          *ngIf="
+                                            menu.categoria_id ===
+                                              subcategoria.id_subcategoria &&
+                                            menu.negocio_id === negocio.id
+                                          "
+                                          style="background-color: transparent"
+                                        >
+                                          <ion-label>
+                                            <h2>{{ menu.nombre_producto }}</h2>
+                                            <h3>{{ menu.descripcion }}</h3>
+                                            <h3>
+                                              <strong>Precio:</strong> ${{
+                                                menu.precio
+                                              }}
+                                            </h3>
+                                          </ion-label>
+                                          <ion-thumbnail slot="start">
+                                            <img
+                                              [src]="
+                                                menu.imagen ||
+                                                'https://ionicframework.com/docs/img/demos/thumbnail.svg'
+                                              "
+                                              alt="Imagen del producto"
+                                              (error)="handleImageError($event)"
+                                            />
+                                          </ion-thumbnail>
+                                        </ion-item>
+                                      </ng-container>
+                                    </ion-list>
+                                  </div>
+                                </ion-accordion>
+                              </ng-container>
+                            </ion-accordion-group>
+                          </div>
+                        </ion-accordion>
                       </ng-container>
                     </ion-accordion-group>
                   </div>

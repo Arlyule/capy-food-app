@@ -268,7 +268,50 @@ export class AdministrarApartadosNegocioComponent implements OnInit {
       {
         text: 'Eliminar',
         handler: () => {
-          this.removeMesa(mesaId);
+          const mesaData = {
+            accion: 3,
+            data: {id: mesaId},
+          };
+
+          console.log(mesaData);
+
+          this.mesasService.crudMesas(mesaData).subscribe({
+            next: (response: any) => {
+              console.log(response);
+              if (response.codigo === '0') {
+                // Crear la alerta de éxito
+                const successAlert = document.createElement('ion-alert');
+                successAlert.header = 'Mesa Eliminada';
+                successAlert.message = 'La mesa ha sido eliminada correctamente.';
+                successAlert.buttons = ['Aceptar'];
+
+                document.body.appendChild(successAlert);
+                successAlert.present();
+
+                // Recargar la lista de empleados
+                this.cargarMesas(this.mesaSeleccionado.negocio_id);
+
+              } else {
+                const errorAlert = document.createElement('ion-alert');
+                errorAlert.header = 'Error';
+                errorAlert.message = `No se pudo eliminar la mesa: ${response.mensaje}`;
+                errorAlert.buttons = ['Aceptar'];
+
+                document.body.appendChild(errorAlert);
+                errorAlert.present();
+              }
+            },
+            error: (err) => {
+              const errorAlert = document.createElement('ion-alert');
+              errorAlert.header = 'Error';
+              errorAlert.message = 'Hubo un problema al agregar la mesa.';
+              errorAlert.buttons = ['Aceptar'];
+
+              document.body.appendChild(errorAlert);
+              errorAlert.present();
+              console.error('Error en la solicitud:', err);
+            },
+          });
         },
       },
     ];

@@ -15,7 +15,7 @@ export class RegisterComponent implements OnInit {
   username = '';
   email = '';
   password = '';
-  rol_id = 1;
+  rol_id = 4;
   isLoading = false;
 
   constructor(
@@ -49,7 +49,7 @@ export class RegisterComponent implements OnInit {
         username: this.username,
         password: this.password,
         correo: this.email,
-        rol_id: 1,
+        rol_id: 4,
       };
 
       this.registerService.register(registroData).subscribe(

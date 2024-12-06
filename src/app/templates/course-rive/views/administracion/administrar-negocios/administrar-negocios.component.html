@@ -51,10 +51,10 @@
                 required
               >
                 <ion-select-option
-                  *ngFor="let option of options"
-                  [value]="option.value"
+                  *ngFor="let usuarios of users"
+                  [value]="usuarios.id"
                 >
-                  {{ option.label }}
+                  {{ usuarios.username }}
                 </ion-select-option>
               </ion-select>
             </ion-item>
@@ -110,7 +110,7 @@
               trigger="delete-alert-{{ negocio.id }}"
               header="¿Estás seguro?"
               message="¿Seguro que quieres eliminar este negocio?"
-              [buttons]="deleteNegocioButtons(negocio.id)"
+              [buttons]="deleteNegocioButtons(negocio.id, negocio.usuario_id)"
             ></ion-alert>
           </ion-row>
         </ion-col>

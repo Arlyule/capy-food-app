@@ -5,8 +5,11 @@
   <div class="scroll-container" style="max-height: 85vh; overflow-y: auto">
     <!-- Iterar sobre categorias -->
     <div *ngFor="let categoria of categoriasList">
-      <ion-text class="courses-list-title font-smallTitle">
-        {{ categoria.nombreCategoria }}
+      <ion-text
+        class="courses-list-title font-largeTitle"
+        style="font-size: 20px"
+      >
+        Categoria de {{ categoria.nombre_categoria }}
       </ion-text>
 
       <!-- Contenido de la categoría -->
@@ -15,7 +18,7 @@
           *ngFor="let producto of productos; trackBy: trackProductos"
         >
           <div
-            *ngIf="categoria.id === producto.categoriaId"
+            *ngIf="isProductoEnCategoria(categoria, producto)"
             class="course-container"
             [style.background]="getNegocioColor(producto.id)"
           >
@@ -25,14 +28,14 @@
                   producto.imagen ||
                   'https://ionicframework.com/docs/img/demos/thumbnail.svg'
                 "
-                alt="{{ producto.nombreProducto }}"
+                alt="{{ producto.nombre_producto }}"
                 (error)="handleImageError($event)"
               />
             </ion-thumbnail>
             <br />
 
             <ion-text class="course-title font-title2">
-              {{ producto.nombreProducto }}
+              {{ producto.nombre_producto }}
             </ion-text>
             <ion-text class="course-subtitle font-subtitle">
               {{ producto.descripcion }}
@@ -55,7 +58,7 @@
                 <div slot="content">
                   <ion-accordion-group>
                     <ng-container *ngFor="let negocio of negociosList">
-                      <ion-item *ngIf="negocio.id === producto.negocioId">
+                      <ion-item *ngIf="negocio.id === producto.negocio_id">
                         <ion-label>
                           <h2>{{ negocio.nombre }}</h2>
                           <h3>{{ negocio.direccion }}</h3>

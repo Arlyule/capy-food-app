@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { InfiniteScrollCustomEvent } from '@ionic/angular'; // Importa el tipo
-
-import { Categoria, categoriasList } from '../../models/categorias';
-import { Menu, menusList } from '../../models/menu';
-import { Negocio, negociosList } from '../../models/negocios'; // Importa la lista de negocios
+import { InfiniteScrollCustomEvent } from '@ionic/angular';
+import { CategoriasService } from '../../services/categorias.service';
+import { MenuService } from '../../services/menu.service';
+import { NegociosService } from '../../services/negocios.service';
 
 @Component({
   selector: 'app-menu',
@@ -11,66 +10,107 @@ import { Negocio, negociosList } from '../../models/negocios'; // Importa la lis
   styleUrls: ['./menu.component.scss'],
 })
 export class MenuComponent implements OnInit {
-  productos: Menu[] = [...menusList];  // Usamos una copia de la lista de productos
-  categoriasList = categoriasList;  // Lista de categorías
-  negociosList: Negocio[] = negociosList; // Lista de negocios
-  currentProductoIndex = 0;
-  negocioColors = new Map<number, string>();  // Para almacenar los colores de los negocios
+  productos: any[] = []; // Lista de productos obtenidos desde el servicio
+  categoriasList: any[] = []; // Lista de categorías obtenidas desde el servicio
+  negociosList: any[] = []; // Lista de negocios obtenidos desde el servicio
+  currentProductoIndex = 0; // Índice actual para el scroll infinito
+  negocioColors = new Map<number, string>(); // Mapa para asociar colores a los negocios
 
-  constructor() { }
+  constructor(
+    private categoriasService: CategoriasService,
+    private menuService: MenuService,
+    private negociosService: NegociosService
+  ) { }
 
   ngOnInit() {
-    this.assignColorsToNegocios();  // Asignar colores a los negocios al iniciar
+    this.loadCategorias();
+    console.log(this.categoriasList);
+    this.loadProductos();
+    this.loadNegocios();
+  }
+
+  // Cargar categorías desde el servicio
+  loadCategorias() {
+    this.categoriasService.getAllCategorias({}, 4).subscribe((response) => {
+      console.log(response);
+      if (response.codigo === '0') {
+        this.categoriasList = response.info;
+        console.log(response.info);
+      }
+    });
+  }
+
+  // Cargar productos desde el servicio
+  loadProductos() {
+    this.menuService.getAllCategorias({}, 3).subscribe((response) => {
+      if (response.codigo === '0') {
+        this.productos = response.info;
+        this.assignColorsToNegocios();
+      }
+    });
+  }
+
+  // Cargar negocios desde el servicio
+  loadNegocios() {
+    this.negociosService.getAllNegocios({ accion: 1 }).subscribe((response) => {
+      if (response.codigo === '0') {
+        this.negociosList = response.info;
+      }
+    });
   }
 
   // Método para asignar uno de los tres colores al azar
-  // Método actualizado para devolver el degradado en formato rgb
   generateRandomColor(): string {
-    // Retornar el degradado con los colores en formato rgb
     return 'linear-gradient(135deg, rgb(252, 135, 40),rgb(255, 107, 39),rgb(255, 85, 0))';
   }
 
-  // Método para obtener el color de un negocio por su id
+  // Obtener el color de un negocio por su ID
   getNegocioColor(id: number): string {
-    // Devuelve el degradado en lugar de un color único
-    return this.negocioColors.get(id) || 'linear-gradient(135deg, rgb(252, 135, 40),rgb(255, 107, 39),rgb(255, 85, 0))';
+    return this.negocioColors.get(id) || this.generateRandomColor();
   }
 
-
-  // Asigna colores aleatorios a cada negocio
-  assignColorsToNegocios() {
+  // Asignar colores aleatorios a cada negocio
+  private assignColorsToNegocios() {
     this.productos.forEach((producto) => {
-      const color = this.generateRandomColor();
-      this.negocioColors.set(producto.id, color);  // Asignamos el color al negocio
+      if (!this.negocioColors.has(producto.negocio_id)) {
+        const color = this.generateRandomColor();
+        this.negocioColors.set(producto.negocio_id, color);
+      }
     });
   }
 
   // Manejo de error en la carga de la imagen
   handleImageError(event: any) {
-    event.target.src = 'https://ionicframework.com/docs/img/demos/thumbnail.svg';  // Imagen por defecto
+    event.target.src = 'https://ionicframework.com/docs/img/demos/thumbnail.svg';
   }
 
-  trackProductos(i: number, producto: Menu) {
-    return `${producto.nombreProducto}_${i}`;
+  // Seguimiento de los productos en el *ngFor
+  trackProductos(i: number, producto: any) {
+    return `${producto.nombre_producto}_${i}`;
   }
 
-  // Función para cargar más productos cuando el usuario se desplaza
-  onIonInfinite(ev: InfiniteScrollCustomEvent) {  // Tipado explícito aquí
+  // Función para cargar más productos con el scroll infinito
+  onIonInfinite(ev: InfiniteScrollCustomEvent) {
     this.loadMoreProductos();
     setTimeout(() => {
-      ev.target.complete();  // Usamos ev.target.complete() para completar el evento
+      ev.target.complete();
     }, 500);
   }
 
   private loadMoreProductos() {
-    // Simulando la carga de más productos
-    const newProductos = menusList.slice(this.currentProductoIndex, this.currentProductoIndex + 5);
+    // Simula la carga de más productos
+    const newProductos = this.productos.slice(this.currentProductoIndex, this.currentProductoIndex + 5);
     this.productos = [...this.productos, ...newProductos];
     this.currentProductoIndex += 5;
   }
 
   // Filtrar productos por categoría
   getProductosPorCategoria(categoriaId: number) {
-    return this.productos.filter(producto => producto.categoriaId === categoriaId);
+    return this.productos.filter((producto) => producto.categoria_id === categoriaId);
   }
+
+  isProductoEnCategoria(categoria: any, producto: any): boolean {
+    return categoria.subcategorias && categoria.subcategorias.some((sub: any) => sub.id_subcategoria === producto.categoria_id);
+  }
+
 }

@@ -4,7 +4,7 @@
   <!-- Barra de búsqueda -->
   <ion-searchbar
     [(ngModel)]="searchTerm"
-    (ionInput)="filterNegocios()"
+    (ionInput)="filterUsuarios()"
     debounce="300"
     show-clear-button="focus"
     class="custom"
@@ -12,14 +12,14 @@
     showCancelButton="focus"
   ></ion-searchbar>
 
-  <!-- Botón Add Negocio -->
+  <!-- Botón Add Usuario -->
   <ion-button expand="block" id="open-modal" class="boton2">
     <ion-icon slot="start" name="add-outline"></ion-icon>
     Agregar Usuario
   </ion-button>
   <br />
 
-  <!-- Modal para agregar negocio -->
+  <!-- Modal para agregar usuario -->
   <ion-modal
     trigger="open-modal"
     [initialBreakpoint]="1"
@@ -33,11 +33,11 @@
           </ion-toolbar>
         </ion-header>
         <ion-content class="ion-padding">
-          <form (ngSubmit)="addNegocio(newNegocio)">
-            <ion-item *ngFor="let input of addNegocioInputs">
+          <form (ngSubmit)="addUsuario(newUsuario)">
+            <ion-item *ngFor="let input of addUsuarioInputs">
               <ion-label position="stacked">{{ input.placeholder }}</ion-label>
               <ion-input
-                [(ngModel)]="newNegocio[input.name]"
+                [(ngModel)]="newUsuario[input.name]"
                 [name]="input.name"
                 [type]="input.type"
                 required
@@ -51,11 +51,8 @@
                 placeholder="Selecciona..."
                 required
               >
-                <ion-select-option
-                  *ngFor="let option of options"
-                  [value]="option.value"
-                >
-                  {{ option.label }}
+                <ion-select-option *ngFor="let rol of roles" [value]="rol.id">
+                  {{ rol.nombrerol }}
                 </ion-select-option>
               </ion-select>
             </ion-item>
@@ -73,37 +70,39 @@
     </ng-template>
   </ion-modal>
 
-  <!-- Lista de negocios -->
-  <ion-text class="recent-title font-title3">Negocios</ion-text>
+  <!-- Lista de usuarios -->
+  <ion-text class="recent-title font-title3">Usuarios</ion-text>
   <div class="section-list" style="max-height: 70vh; overflow-y: auto">
     <ion-grid class="section-grid">
       <ion-row>
         <ion-col
-          *ngFor="let negocio of filteredNegocios; trackBy: trackNegocios"
+          *ngFor="let usuario of filteredUsers; trackBy: trackUsuarios"
           size-lg="6"
           size="12"
         >
           <ion-row
             class="section-container"
-            [style.background]="getNegocioColor(negocio.id)"
+            [style.background]="getUsuarioColor(usuario.id)"
           >
             <ion-col>
-              <ion-text class="font-title2">{{ negocio.nombre }}</ion-text>
+              <ion-text class="font-title2">{{ usuario.username }}</ion-text>
               <br />
-              <ion-text class="font-body"
-                >Rol: {{ negocio.direccion }}</ion-text
+              <ion-text class="font-title3">{{ usuario.correo }}</ion-text>
+              <br />
+              <ion-text class="font-title4"
+                >Rol: {{ getRolName(usuario.rol_id) }}</ion-text
               >
               <br />
-              <ion-button color="primary" id="delete-alert-{{ negocio.id }}">
+              <ion-button color="primary" id="delete-alert-{{ usuario.id }}">
                 Eliminar
               </ion-button>
             </ion-col>
 
             <ion-alert
-              trigger="delete-alert-{{ negocio.id }}"
+              trigger="delete-alert-{{ usuario.id }}"
               header="¿Estás seguro?"
-              message="¿Seguro que quieres eliminar este negocio?"
-              [buttons]="deleteNegocioButtons(negocio.id)"
+              message="¿Seguro que quieres eliminar este usuario?"
+              [buttons]="deleteUsuarioButtons(usuario.id)"
             ></ion-alert>
           </ion-row>
         </ion-col>
@@ -114,7 +113,7 @@
     <ion-infinite-scroll threshold="100px" (ionInfinite)="loadMore($event)">
       <ion-infinite-scroll-content
         loadingSpinner="bubbles"
-        loadingText="Cargando más negocios..."
+        loadingText="Cargando más usuarios..."
       ></ion-infinite-scroll-content>
     </ion-infinite-scroll>
   </div>

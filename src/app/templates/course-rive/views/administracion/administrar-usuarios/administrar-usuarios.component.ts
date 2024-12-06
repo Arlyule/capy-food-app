@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { negociosList, Negocio } from '../../../models/negocios';
+import { UsuariosService } from '../../../services/usuarios.service';
 
 @Component({
   selector: 'app-administrar-usuarios',
@@ -7,118 +7,177 @@ import { negociosList, Negocio } from '../../../models/negocios';
   styleUrls: ['./administrar-usuarios.component.scss'],
 })
 export class AdministrarUsuariosComponent implements OnInit {
-  negocios = negociosList;
-  filteredNegocios: Negocio[] = [...this.negocios];
+  users: any[] = []; // Lista de usuarios
+  filteredUsers: any[] = [...this.users]; // Lista filtrada para búsquedas
+  roles: any[] = []; // Lista de roles
+  filteredRoles: any[] = [...this.roles];
   searchTerm: string = '';
-  allNegocios: Negocio[] = [...this.negocios];
-  negocioColors: Map<number, string> = new Map();
-  selectedOption: string = '';
+  selectedOption: string = ''; // Rol seleccionado
+  userColors: Map<number, string> = new Map(); // Colores por usuario
 
-  // Lista de opciones para el dropdown
-  options = [
-    { label: 'Opción 1', value: '1' },
-    { label: 'Opción 2', value: '2' },
-    { label: 'Opción 3', value: '3' }
-  ];
-
-  // Nueva propiedad para el negocio que se agregará
-  newNegocio: { [key: string]: string } = {
+  // Nueva propiedad para el usuario que se agregará
+  newUsuario: { [key: string]: string } = {
     nombre: '',
-    telefono: '',
+    password: '',
     correo: '',
-    direccion: ''
   };
 
-  // Definir los campos de entrada para el formulario
-  addNegocioInputs = [
+  // Campos del formulario para agregar usuario
+  addUsuarioInputs = [
     { name: 'nombre', placeholder: 'Nombre', type: 'text' },
-    { name: 'telefono', placeholder: 'Teléfono', type: 'text' },
+    { name: 'password', placeholder: 'Password', type: 'password' },
     { name: 'correo', placeholder: 'Correo', type: 'email' },
-    { name: 'usuario', placeholder: 'usuario', type: 'text' }
   ];
 
-  constructor() { }
+  constructor(private usuariosService: UsuariosService) {
+    this.cargarUsuarios();
+    this.cargarRoles();
+  }
 
   ngOnInit() {
-    // Asignar colores aleatorios a los negocios
-    this.negocios.forEach((negocio) => {
-      this.negocioColors.set(negocio.id, this.generateRandomColor());
+    // Asignar colores aleatorios a los usuarios
+    this.users.forEach((usuario) => {
+      this.userColors.set(usuario.id, this.generateRandomColor());
     });
   }
 
-  // Filtrar negocios por búsqueda
-  filterNegocios() {
-    this.filteredNegocios = this.allNegocios.filter(
-      (negocio) =>
-        negocio.nombre.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        (negocio.telefono && negocio.telefono.includes(this.searchTerm)) ||
-        (negocio.correo &&
-          negocio.correo.toLowerCase().includes(this.searchTerm.toLowerCase()))
+  // Filtrar usuarios por búsqueda
+  filterUsuarios() {
+    this.filteredUsers = this.users.filter(
+      (user) =>
+        user.username.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        user.correo.toLowerCase().includes(this.searchTerm.toLowerCase())
     );
   }
 
-  // Eliminar negocio
-  eliminarNegocio(id: number) {
-    this.allNegocios = this.allNegocios.filter((negocio) => negocio.id !== id);
-    this.filteredNegocios = this.filteredNegocios.filter(
-      (negocio) => negocio.id !== id
-    );
-    this.negocioColors.delete(id);
+  // Obtener el nombre del rol
+  getRolName(rolId: number): string {
+    const rol = this.filteredRoles.find((role) => role.id === rolId);
+    return rol ? rol.nombrerol : 'Desconocido';
   }
 
-  // Agregar negocio
-  addNegocio(data: any) {
-    if (data.nombre && data.telefono && data.correo && data.direccion) {
-      const newNegocio: Negocio = {
-        id: this.allNegocios.length > 0 ? Math.max(...this.allNegocios.map(n => n.id)) + 1 : 1, // Generar ID único
-        nombre: data.nombre,
-        telefono: data.telefono,
+  // Eliminar usuario
+  eliminarUsuario(id: number) {
+    const filtro = { data: { id }, accion: 4 };
+
+    this.usuariosService.getUsers(filtro).subscribe({
+      next: (response: any) => {
+        if (response.codigo === "0") {
+          this.users = this.users.filter((usuario) => usuario.id !== id);
+          this.filteredUsers = this.filteredUsers.filter(
+            (usuario) => usuario.id !== id
+          );
+          this.userColors.delete(id);
+          console.log('Usuario eliminado correctamente:', response.mensaje);
+        } else {
+          console.error('Error al eliminar el usuario:', response.mensaje);
+        }
+      },
+      error: (err) => {
+        console.error('Error en la petición para eliminar usuario:', err);
+      },
+    });
+  }
+
+  // Agregar usuario
+  addUsuario(data: any) {
+    if (data.nombre && data.password && data.correo) {
+      const nuevoUsuario = {
+        username: data.nombre,
+        password: data.password,
         correo: data.correo,
-        direccion: data.direccion,
-        usuario_id: parseInt(this.selectedOption), // Guardar la opción seleccionada (aunque está vacía)
+        rol_id: parseInt(this.selectedOption),
       };
-      this.allNegocios.push(newNegocio);
-      this.filteredNegocios.push(newNegocio);
-      this.negocioColors.set(newNegocio.id, this.generateRandomColor());
+
+      const filtro = { data: nuevoUsuario, accion: 5 };
+
+      this.usuariosService.getUsers(filtro).subscribe({
+        next: (response: any) => {
+          if (response.codigo === "0") {
+            this.cargarUsuarios();
+            console.log('Usuario agregado correctamente:', response.mensaje);
+          } else {
+            console.error('Error al agregar el usuario:', response.mensaje);
+          }
+        },
+        error: (err) => {
+          console.error('Error en la petición para agregar usuario:', err);
+        },
+      });
+    } else {
+      console.error('Faltan campos requeridos para agregar el usuario.');
     }
   }
 
-  // Método actualizado para devolver el degradado en formato rgb
+  // Generar un color aleatorio en formato degradado
   generateRandomColor(): string {
-    // Retornar el degradado con los colores en formato rgb
-    return 'linear-gradient(180deg,rgb(252, 135, 40),rgb(255, 107, 39),rgb(255, 85, 0))';
+    return 'linear-gradient(180deg, rgb(252, 135, 40), rgb(255, 107, 39), rgb(255, 85, 0))';
   }
 
-  // Método para obtener el color de un negocio por su id
-  getNegocioColor(id: number): string {
-    // Devuelve el degradado en lugar de un color único
-    return this.negocioColors.get(id) || 'linear-gradient(180deg, rgb(252, 135, 40),rgb(255, 107, 39),rgb(255, 85, 0))';
+  // Obtener el color asignado a un usuario por su id
+  getUsuarioColor(id: number): string {
+    return (
+      this.userColors.get(id) ||
+      'linear-gradient(180deg, rgb(252, 135, 40), rgb(255, 107, 39), rgb(255, 85, 0))'
+    );
   }
 
+  // Cargar usuarios desde el servicio
+  cargarUsuarios() {
+    const filtro = { data: {}, accion: 1 };
+    this.usuariosService.getUsers(filtro).subscribe({
+      next: (response: any) => {
+        if (response.codigo === "0") {
+          this.users = response.info;
+          this.filteredUsers = [...this.users];
+        } else {
+          console.error('Error al obtener los usuarios:', response.mensaje);
+        }
+      },
+      error: (err) => {
+        console.error('Error al obtener los usuarios:', err);
+      },
+    });
+  }
+
+  // Cargar roles desde el servicio
+  cargarRoles() {
+    const filtro = { data: {}, accion: 1 };
+    this.usuariosService.getRoles(filtro).subscribe({
+      next: (response: any) => {
+        if (response.codigo === "0") {
+          this.roles = response.info;
+          this.filteredRoles = [...this.roles];
+        } else {
+          console.error('Error al obtener los roles:', response.mensaje);
+        }
+      },
+      error: (err) => {
+        console.error('Error al obtener los roles:', err);
+      },
+    });
+  }
 
   // Track por ID
-  trackNegocios(i: number, negocio: Negocio) {
-    return negocio.id;
+  trackUsuarios(index: number, usuario: any) {
+    return usuario.id;
   }
 
-  // Cargar más negocios
+  // Cargar más usuarios (infinite scroll)
   loadMore(event: any) {
     setTimeout(() => {
-      const currentLength = this.filteredNegocios.length;
-      const nextNegocios = this.allNegocios.slice(
-        currentLength,
-        currentLength + 5
-      );
-      this.filteredNegocios = [...this.filteredNegocios, ...nextNegocios];
+      const currentLength = this.filteredUsers.length;
+      const nextUsers = this.users.slice(currentLength, currentLength + 5);
+      this.filteredUsers = [...this.filteredUsers, ...nextUsers];
       event.target.complete();
     }, 500);
   }
 
-  // Botones para eliminar negocio
-  deleteNegocioButtons(id: number) {
+  // Botones para eliminar usuario
+  deleteUsuarioButtons(id: number) {
     return [
       { text: 'Cancelar', role: 'cancel' },
-      { text: 'Eliminar', handler: () => this.eliminarNegocio(id) },
+      { text: 'Eliminar', handler: () => this.eliminarUsuario(id) },
     ];
   }
 }

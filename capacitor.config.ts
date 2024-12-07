@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'io.ionic.templates',
-  appName: 'ionic_ui_templates',
+  appName: 'capy_food_app',
   webDir: 'www',
   server: {
     androidScheme: 'https'

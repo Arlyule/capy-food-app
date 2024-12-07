@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://localhost:4110',
+  apiUrl: 'https://capy-food-backend.onrender.com',
 };
